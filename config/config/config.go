@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"os"
 )
@@ -9,8 +10,13 @@ import (
 type Link url.URL
 
 func (l *Link) UnmarshalJSON(data []byte) error {
-  rawURL := string(data)
-  u, err := url.Parse(rawURL)
+	fmt.Println(string(data))
+	var rawURL string
+	if err := json.Unmarshal(data, &rawURL); err != nil {
+		return err
+	}
+	fmt.Println(rawURL)
+	u, err := url.Parse(rawURL)
 	if err != nil {
 		return err
 	}
@@ -28,7 +34,7 @@ type Config struct {
 	AppKey      string `json:"app_key"`
 }
 
-func (c *Config) LoadFromJSON(fileName string) error {
+func (c *Config) loadFromJSON(fileName string) error {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
 		return err
@@ -40,9 +46,19 @@ func (c *Config) LoadFromJSON(fileName string) error {
 }
 
 func (c *Config) Init() error {
-	if err := c.LoadFromJSON("./config/config.json"); err != nil {
+	if err := c.loadFromJSON("./config/config.json"); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (c *Config) Show() {
+	fmt.Printf("Port:        %d\n", c.Port)
+	fmt.Printf("DbURL:       %v\n", c.DbURL)
+	fmt.Printf("JaegerURL:   %v\n", c.JaegerURL)
+	fmt.Printf("SentryURL:   %v\n", c.SentryURL)
+	fmt.Printf("KafkaBroker: %s\n", c.KafkaBroker)
+	fmt.Printf("AppID:       %d\n", c.AppID)
+	fmt.Printf("AppKey:      %s\n", c.AppKey)
 }
