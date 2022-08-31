@@ -10,12 +10,10 @@ import (
 type Link url.URL
 
 func (l *Link) UnmarshalJSON(data []byte) error {
-	fmt.Println(string(data))
 	var rawURL string
 	if err := json.Unmarshal(data, &rawURL); err != nil {
 		return err
 	}
-	fmt.Println(rawURL)
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return err
