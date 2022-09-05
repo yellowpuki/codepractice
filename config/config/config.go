@@ -2,11 +2,13 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/kelseyhightower/envconfig"
 	"log"
 	"net/url"
 	"os"
+	"strings"
 )
 
 type Link url.URL
@@ -17,19 +19,18 @@ func (l *Link) Decode(data string) error {
 		return err
 	}
 	*l = Link(*u)
+
 	return nil
 }
 
 func (l *Link) UnmarshalJSON(data []byte) error {
-	var rawURL string
-	if err := json.Unmarshal(data, &rawURL); err != nil {
-		return err
-	}
+	rawURL := strings.ReplaceAll(string(data), "\"", "")
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return err
 	}
 	*l = Link(*u)
+
 	return nil
 }
 
@@ -54,7 +55,7 @@ func SetEnv() {
 	if err := os.Setenv("APP_ID", "3"); err != nil {
 		log.Println("value for APP_ID cannot be set")
 	}
-	if err := os.Setenv("APP_KEY", "asdf698sd6fa98sd6fsa98fd6a9sdf"); err != nil {
+	if err := os.Setenv("APP_KEY", "a1s2df698sd6fa98sd6fsa98fd6a9sdf"); err != nil {
 		log.Println("value for APP_KEY cannot be set")
 	}
 }
@@ -73,8 +74,8 @@ func (ce *EnvConfig) Init() error {
 	if err := envconfig.Process("binaryty", ce); err != nil {
 		return err
 	}
-
 	ce.show()
+
 	return nil
 }
 
@@ -102,10 +103,10 @@ type JSONConfig struct {
 func (cj *JSONConfig) loadFromJSON(fileName string) error {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		return err
+		return fmt.Errorf("JSONConfig->loadFromJSON: unable to read file " + fileName)
 	}
 	if err = json.Unmarshal(data, &cj); err != nil {
-		return err
+		return errors.New("JSONConfig->loadFromJson: can't unmarshal data")
 	}
 
 	return nil
