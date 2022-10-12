@@ -13,12 +13,13 @@ import (
 )
 
 const (
-	PARTS_URL_PATH     = "https://lr-parts.com.ua/parts/LAND%20ROVER/"
+	PARTS_URL_PATH     = "https://gb.ru/lessons/"
 	PARTS_JSON_PATH    = "./parts.json"
-	DIV_MAIN_CONTAINER = "div.wGoodsGroupInfo"
-	PART_NUMBER        = "span.article-number"
-	DESCRIPTION        = "h2"
+	DIV_MAIN_CONTAINER = "div.main-content-wrapper"
+	PART_NUMBER        = "h2"
+	DESCRIPTION        = "h3"
 	IMAGE              = "div.article-image"
+	VIDEO              = "div.vjs-gbui-player-container"
 )
 
 type PartNumbers []struct {
@@ -55,12 +56,12 @@ func parseParts(g *geziyor.Geziyor, r *client.Response) {
 
 		partNumber := s.Find(PART_NUMBER).Text()
 		description := s.Find(DESCRIPTION).Text()
-		img, _ := s.Find(IMAGE).Find("a").Attr("href")
+		video, _ := s.Find(VIDEO).Find("video").Attr("src")
 
 		g.Exports <- map[string]interface{}{
 			"description": strings.TrimSpace(description),
 			"partnumber":  strings.TrimSpace(partNumber),
-			"img":         img,
+			"video":       video,
 		}
 	})
 }
